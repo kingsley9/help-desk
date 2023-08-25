@@ -31,7 +31,7 @@ const AdminDashboard = () => {
             const response = await axios.get(`${API_URL}/api/admin`, {
               headers: {
                 'Content-Type': 'application/json',
-                Authorization: `JWT ${token}`,
+                'x-access-token': token,
               },
             });
 
@@ -74,6 +74,10 @@ const AdminDashboard = () => {
     navigate('/');
   };
 
+  const handleAdminChat = () => {
+    navigate('/admin/chat');
+  };
+
   const handleConversationClick = (sessionId: string) => {
     setSessionId(sessionId);
   };
@@ -96,9 +100,35 @@ const AdminDashboard = () => {
     <div style={{ margin: 'auto' }}>
       <h1>Admin Dashboard</h1>
       <p>{adminMessage}</p>
-      <button className="logout-button " onClick={handleLogout}>
-        Logout
-      </button>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          width: '100%',
+        }}
+      >
+        <button className="logout-button" onClick={handleLogout}>
+          Logout
+        </button>
+        <button className="admin-home-button" onClick={handleAdminChat}>
+          Admin Chat
+        </button>
+      </div>
+      <div style={{ margin: '15px' }}>
+        <label htmlFor="admin-dropdown">Assign admin: </label>
+        <select
+          id="admin-dropdown"
+          value={selectedAdminId}
+          onChange={handleAdminChange}
+        >
+          {admins.map((admin) => (
+            <option key={admin.adminid} value={admin.adminid}>
+              {admin.username}
+            </option>
+          ))}
+        </select>
+        <button onClick={handleUpdateClick}>Update</button>
+      </div>
       <div className="admin-dashboard">
         <div className="admin-panel">
           <h2 style={{ margin: '15px' }}>Conversations</h2>
@@ -113,24 +143,13 @@ const AdminDashboard = () => {
               </li>
             ))}
           </ul>
-          <div style={{ margin: '15px' }}>
-            <label htmlFor="admin-dropdown">Assign admin: </label>
-            <select
-              id="admin-dropdown"
-              value={selectedAdminId}
-              onChange={handleAdminChange}
-            >
-              {admins.map((admin) => (
-                <option key={admin.adminid} value={admin.adminid}>
-                  {admin.username}
-                </option>
-              ))}
-            </select>
-            <button onClick={handleUpdateClick}>Update</button>
-          </div>
         </div>
         <div className="admin-content">
-          <ChatBox sessionId={sessionId} token={token} role="admin" />
+          {sessionId ? (
+            <ChatBox sessionId={sessionId} token={token} role="admin" />
+          ) : (
+            <p>No active conversations</p>
+          )}
         </div>
       </div>
     </div>
